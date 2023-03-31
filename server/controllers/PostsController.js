@@ -1,4 +1,5 @@
 import Post from "../scheme/Post.js";
+import PostService from "../service/PostService.js";
 
 function PostController() {
   this.create = async (req, res) => {
@@ -7,47 +8,37 @@ function PostController() {
     //res.status(200).send({author, title, content,})
     //res.status(200).send(req.body)
     try {
-      const post = await Post.create({ author, title, content, picture });
+      const post = await PostService.create(req.body);
       console.log(post);
       res.json(post);
     } catch (error) {
-      res.status(500).json(error);
+      //читает ошибку throw new Error("ID не был указан") 
+      res.status(500).json(error.message);
     }
   };
   this.allPosts = async (req, res) => {
     try {
-      const posts = await Post.find();
+      const posts = await PostService.allPosts();
       return res.json(posts);
-
-      res.status(200).send("GET => Получить данные");
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json(error.message);
     }
   };
   this.onePost = async (req, res) => {
     try {
       const { id } = req.params;
-      if (!id) {
-        res.status(400).json({ message: "id нет" });
-      }
-      const post = await Post.findById(id);
+      const post = await PostService.onePost(id);
       return res.json(post);
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json(error.message);
     }
   };
   this.updatePost = async (req, res) => {
     try {
-      const post = req.body;
-      if (!post._id) {
-        res.status(400).json({ message: "id нет" });
-      }
-      const updatedPost = await Post.findByIdAndUpdate(post._id, post, {
-        new: true,
-      });
+      const updatedPost = await PostService.updatePost(req.body);
       return res.json(updatedPost);
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json(error.message);
     }
   };
   this.dropPost = async (req, res) => {
@@ -56,10 +47,10 @@ function PostController() {
       if (!id) {
         res.status(400).json({ message: "id нет" });
       }
-      const post = await Post.findByIdAndDelete(id);
+      const post = await PostService.dropPost(id)
       return res.json(post);
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json(error.message);
     }
   };
 }
